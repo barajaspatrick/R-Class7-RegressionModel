@@ -1,0 +1,120 @@
+---
+title: "Regression Models Course Project"
+author: "Patrick"
+date: "1/25/2017"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+# Coursera Data Science Course 7 Regression Models
+
+## Exploratory analysis
+```{r, include=FALSE}
+
+library(ggplot2)
+data(mtcars)
+head(mtcars) ## note am = transmission (0 - automatic, 1 - manual)
+summary(mtcars)
+
+```
+
+## Regression Analysis
+```{r}
+aggregate(mpg~am, data = mtcars, mean)
+```
+So far we can see that automatic cars have a lower mpg than manual cars.
+
+Now lets find the variables that are highly correlated with mpg. We will use a 
+step function to run miltiple linear models to build our multiple regression model.
+```{r Appendix1, include=FALSE}
+
+## creates linear models with mpg and remaining variables
+lm1 <- lm(mpg ~ ., data = mtcars) 
+m2 <- step(lm1, direction = "both") 
+summary(m2) 
+```
+
+
+From what we can see above wt, qsec, and am produce the best fit model.
+the adjusted r-squared also tells us that 83% of the variability is explained
+by the model.
+
+We can now compare the base model with the model produced by our step function
+```{r}
+
+m0 <- lm(mpg ~ am, data = mtcars)
+anova(m0, m2)
+
+```
+
+The results above indicate that there is a significant contribution from wt
+and qsec to the accuracy of the model.
+
+# Residuals
+Next we can check the residuals (Appendix fig. 2)
+#### Summary
+* residuals vs fitted - Points for most part randomly scattered so conditions seem to be indipendant.
+* normal Q-Q -e points for the most part lie on the line indicatiing a normal distribution.
+* Scale-Location - points seem to be scattered normaly around line indication constant variance.
+* Residuals vs Leverage - From the graph we can see a few outliers
+
+# Hypothesis testing
+Lastly can perform a t.test do determine if the differences between a automatic
+or manual transmission are significant.
+
+```{r}
+t.test(mpg ~ am, data = mtcars)
+```
+
+from the t test results we can see that the difference between cars with a automatic transmission
+compared to a manual transmission is significant.
+
+## Executive Summary
+
+Based on the analysis conducted in this project we can conclude that cars with a Manual Transmission get 2.9358 more mpg per gallon adjusted for weight and quarter-mile time; a subsequent t-test showed the difference to be statistically significant.
+
+## Appendix
+
+### fig 1. Pairs PLOT denoting relationships for mtcars data table.
+
+```{r}
+## scatterplot matrix to visualize relationships
+pairs(mpg~., data = mtcars, panel = panel.smooth, col = "9")
+
+```
+
+### fig 2. Residuals plot
+```{r}
+
+par(mfrow = c(2,2))
+plot(m2)
+
+```
+
+### fig 3. Boxplot of mpg by transmission
+```{r}
+
+boxplot(mpg ~ am, data = mtcars, ylab = "mpg", xlab = "Transmission")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
